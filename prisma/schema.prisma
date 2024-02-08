@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       Int     @id @default(autoincrement())
+  username String  @db.VarChar(150)
+  password Int
+  email    String? @db.VarChar(250)
+  status   Status  @default(PENDING)
+
+  reservations Reservation[]
+}
+
+model Reservation {
+  id        Int      @id @default(autoincrement())
+  car       String
+  startDate DateTime
+  endDate   DateTime
+  status    Status   @default(PENDING)
+
+  Admin      Admin?    @relation(fields: [adminId], references: [id])
+  adminId    Int?
+  Car        Car?      @relation(fields: [carId], references: [id])
+  carId      Int?
+  Customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId Int?
+}
+
+model Car {
+  id            Int    @id @default(autoincrement())
+  model         String @db.VarChar(150)
+  brand         String @db.VarChar(150)
+  availability  String
+  rentalHistory String
+  price         Int
+
+  reservations Reservation[]
+}
+
+model Customer {
+  id            Int    @id @default(autoincrement())
+  username      String @db.VarChar(150)
+  password      Int
+  name          String @db.VarChar(150)
+  email         String @db.VarChar(250)
+  phone         Int
+  address       String @db.VarChar(250)
+  rentalHistory String
+
+  reservations Reservation[]
+}
+
+enum Status {
+  PENDING
+  DOING
+  DONE
+}
